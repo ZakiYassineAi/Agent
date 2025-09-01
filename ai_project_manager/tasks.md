@@ -1,0 +1,2 @@
+- In `README.md`, add a section explaining the project's purpose.
+- In `src/utils.py`, create a function called `hello_world` that prints "Hello, World!".

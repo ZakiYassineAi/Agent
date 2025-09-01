@@ -1,0 +1,5 @@
+{
+    "github_repository_url": "https://github.com/user/your-project.git",
+    "tasks_file_path": "tasks.md",
+    "ollama_api_endpoint": "http://localhost:5000/ask"
+}
