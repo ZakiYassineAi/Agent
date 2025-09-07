@@ -2,6 +2,13 @@ const fs = require('fs');
 const path = require('path');
 
 const configPath = path.resolve(__dirname, 'config.json');
+
+if (!fs.existsSync(configPath)) {
+    console.error("ERROR: Configuration file 'config.json' not found.");
+    console.error("Please copy 'config.example.json' to 'config.json' and fill in your credentials.");
+    process.exit(1); // Exit with an error code
+}
+
 const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
 const SmartGithubAgent = require('./src/SmartGithubAgent.js');
 const RiskAssessmentSystem = require('./src/RiskAssessmentSystem.js');
@@ -36,14 +43,14 @@ class CompleteAutomationSystem {
             console.log("Searching for opportunities...");
             const opportunities = await this.agent.strategies.opportunityHunter.findRealOpportunities();
 
-            if (!opportunities || !opportunities.items || opportunities.items.length === 0) {
+            if (!opportunities || opportunities.length === 0) {
                 console.log("No new opportunities found.");
                 return;
             }
-            console.log(`Found ${opportunities.total_count} potential opportunities. Processing top results...`);
+            console.log(`Found ${opportunities.length} potential opportunities. Processing top results...`);
 
             // Process the first few opportunities found
-            for (const opportunity of opportunities.items.slice(0, 3)) {
+            for (const opportunity of opportunities.slice(0, 3)) {
                 const assessment = await this.riskAssessor.assessOpportunity(opportunity);
                 console.log(`\nAssessing opportunity: "${opportunity.title}" -> Risk: ${assessment.riskLevel}`);
 
