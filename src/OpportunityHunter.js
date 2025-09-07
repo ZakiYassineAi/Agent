@@ -1,6 +1,10 @@
 const fetch = require('node-fetch');
 
 class OpportunityHunter {
+    constructor(config) {
+        this.token = config.githubToken;
+    }
+
     async findRealOpportunities() {
         const searchQueries = [
             // البحث عن طلبات المساعدة الصريحة
@@ -57,10 +61,13 @@ class OpportunityHunter {
 
         const queryString = new URLSearchParams(searchParams).toString();
 
+        const headers = {
+            'Accept': 'application/vnd.github.v3+json',
+            'Authorization': `token ${this.token}`
+        };
+
         try {
-            // 'fetch' is not available in Node.js by default before v18.
-            // A library like 'node-fetch' will be needed.
-            const response = await fetch(`https://api.github.com/search/issues?${queryString}`);
+            const response = await fetch(`https://api.github.com/search/issues?${queryString}`, { headers });
             if (!response.ok) {
                 console.error(`GitHub API error: ${response.status} ${response.statusText}`);
                 return [];

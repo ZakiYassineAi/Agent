@@ -7,11 +7,12 @@ const TrialBeforePayment = require('./TrialBeforePayment.js');
  * The main agent class that orchestrates the different strategies.
  */
 class SmartGithubAgent {
-    constructor() {
+    constructor(config) {
+        this.config = config;
         this.strategies = {
-            opportunityHunter: new OpportunityHunter(),
+            opportunityHunter: new OpportunityHunter(config),
             naturalResponder: new NaturalResponder(),
-            usdtPaymentSystem: new USDTPaymentSystem(),
+            usdtPaymentSystem: new USDTPaymentSystem(config),
             trialSystem: new TrialBeforePayment()
         };
         console.log("SmartGithubAgent initialized with all strategies.");
