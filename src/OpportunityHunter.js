@@ -8,51 +8,36 @@ class OpportunityHunter {
     async findRealOpportunities() {
         const searchQueries = [
             // General Freelance & Contract Work
-            "help wanted freelancer",
-            "freelance opportunity",
-            "looking for contractor",
-            "contract work available",
-            "freelancer needed",
-            "contractor needed",
-
+            "help wanted freelancer", "freelance opportunity", "looking for contractor",
+            "contract work available", "freelancer needed", "contractor needed",
             // Urgency & Payment Indicators
-            "need developer urgent",
-            "willing to pay developer",
-            "hiring developer",
-            "budget available",
-            "paid gig",
-            "paid task",
-            "compensation",
-            "bounty",
+            "need developer urgent", "willing to pay developer", "hiring developer",
+            "budget available", "paid gig", "paid task", "compensation", "bounty",
             "looking to hire",
-
             // Problem & Project Based
-            "urgent fix needed",
-            "production issue",
-            "business critical",
-            "client waiting",
-            "deadline approaching",
-
+            "urgent fix needed", "production issue", "business critical",
+            "client waiting", "deadline approaching",
             // Tech-Specific Examples
-            "React developer needed",
-            "Python freelance help",
-            "Node.js expert wanted",
+            "React developer needed", "Python freelance help", "Node.js expert wanted",
             "Urgent Django fix"
         ];
 
-        const opportunities = [];
+        // Combine all keywords into a single, powerful query using OR.
+        // Queries with spaces are wrapped in quotes for exact phrase matching.
+        const combinedQuery = searchQueries
+            .map(q => q.includes(' ') ? `"${q}"` : q)
+            .join(' OR ');
 
-        for (const query of searchQueries) {
-            // In a real scenario, we would handle pagination and rate limits.
-            const results = await this.searchGithubIssues(query);
-            if (results && results.items) {
-                opportunities.push(...results.items);
-            }
+        console.log(`Executing combined search query: ${combinedQuery}`);
+
+        const results = await this.searchGithubIssues(combinedQuery);
+
+        if (!results || !results.items) {
+            return [];
         }
 
-        // The filter logic depends on properties that may not exist in the API response.
-        // This is a placeholder for more sophisticated filtering.
-        return this.filterGenuineOpportunities(opportunities);
+        // The filter logic can now be applied to the combined results.
+        return this.filterGenuineOpportunities(results.items);
     }
 
     async filterGenuineOpportunities(opportunities) {
