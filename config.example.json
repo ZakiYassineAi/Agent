@@ -1,0 +1,6 @@
+{
+  "githubToken": "YOUR_GITHUB_PERSONAL_ACCESS_TOKEN",
+  "usdtWallet": "YOUR_USDT_WALLET_ADDRESS",
+  "usdtNetwork": "BEP20",
+  "dryRun": true
+}
