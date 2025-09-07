@@ -63,9 +63,8 @@ class CompleteAutomationSystem {
                         console.log(response);
                         console.log("----------------------------------------------------");
                     } else {
-                        // This is where the real posting logic would go.
                         console.log(`--- [Live Mode] Posting response to ${opportunity.html_url} ---`);
-                        // await this.postCommentToGithub(opportunity.comments_url, response);
+                        await this.postCommentToGithub(opportunity.comments_url, response);
                     }
 
                     // Simulate tracking the outcome for the learning system
@@ -86,6 +85,34 @@ class CompleteAutomationSystem {
         console.log(report.insights);
         console.log("--------------------------");
     }
+
+    async postCommentToGithub(commentsUrl, body) {
+        try {
+            console.log(`Posting comment to ${commentsUrl}`);
+            const response = await fetch(commentsUrl, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/vnd.github.v3+json',
+                    'Authorization': `token ${this.config.githubToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ body: body }),
+            });
+
+            if (response.ok) {
+                console.log('Successfully posted comment.');
+                return await response.json();
+            } else {
+                console.error(`Failed to post comment: ${response.status} ${response.statusText}`);
+                const errorBody = await response.text();
+                console.error('Error body:', errorBody);
+                return null;
+            }
+        } catch (error) {
+            console.error('An error occurred while posting the comment:', error);
+            return null;
+        }
+    }
 }
 
 /**
@@ -100,5 +127,9 @@ async function main() {
     }
 }
 
-// Run the main function
-main();
+// Run the main function only if this file is executed directly
+if (require.main === module) {
+    main();
+}
+
+module.exports = CompleteAutomationSystem;
