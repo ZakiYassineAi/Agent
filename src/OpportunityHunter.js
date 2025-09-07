@@ -58,14 +58,23 @@ class OpportunityHunter {
                 uniqueOpportunities.push(opp);
             }
         }
-
         console.log(`Found ${opportunities.length} total results, filtered down to ${uniqueOpportunities.length} unique opportunities.`);
 
-        // Now, apply the time-based filter to the unique opportunities
-        return uniqueOpportunities.filter(opp => {
+        const negativeKeywords = ['course', 'learn', 'tutorial', 'marketing', 'seo', 'design', 'lesson', 'class'];
+
+        const timeFiltered = uniqueOpportunities.filter(opp => {
             const issueAgeInHours = (new Date() - new Date(opp.created_at)) / (1000 * 60 * 60);
             return issueAgeInHours < 48;
         });
+
+        const keywordFiltered = timeFiltered.filter(opp => {
+            const title = opp.title.toLowerCase();
+            return !negativeKeywords.some(keyword => title.includes(keyword));
+        });
+
+        console.log(`Filtered from ${timeFiltered.length} to ${keywordFiltered.length} opportunities after checking negative keywords.`);
+
+        return keywordFiltered;
     }
 
     async searchGithubIssues(query) {

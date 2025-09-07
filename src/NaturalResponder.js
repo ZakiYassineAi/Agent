@@ -31,13 +31,27 @@ class NaturalResponder {
     }
 
     /**
-     * Placeholder for a sophisticated issue analysis function.
+     * Analyzes an issue to determine its context, such as the type of problem.
      */
     async analyzeIssue(issue) {
-        // This is a mock analysis object.
+        const title = issue.title.toLowerCase();
+        const body = issue.body ? issue.body.toLowerCase() : "";
+        const text = title + ' ' + body;
+
+        let problemType = 'task'; // Default type
+
+        if (text.includes('bug') || text.includes('error') || text.includes('fix') || text.includes('issue')) {
+            problemType = 'bug fix';
+        } else if (text.includes('feature') || text.includes('add') || text.includes('create') || text.includes('implement')) {
+            problemType = 'feature request';
+        } else if (text.includes('refactor') || text.includes('improve') || text.includes('optimize')) {
+            problemType = 'refactoring task';
+        }
+
+        // This is a mock analysis object, now with a dynamic problemType.
         return {
-            problemType: "bug fix",
-            language: "javascript",
+            problemType: problemType,
+            language: "javascript", // This could also be dynamically determined in a more advanced version
             techStack: ["React", "Node.js"],
             insight: "the issue seems to stem from state management",
             estimatedDays: 2,
