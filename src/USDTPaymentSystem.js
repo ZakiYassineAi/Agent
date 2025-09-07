@@ -1,9 +1,9 @@
 const DynamicPricing = require('./DynamicPricing.js');
 
 class USDTPaymentSystem {
-    constructor() {
-        this.walletAddress = "TYour-USDT-TRC20-Address-Here"; // IMPORTANT: Replace with a real address
-        this.networks = ["TRC20", "ERC20", "BEP20"];
+    constructor(config) {
+        this.walletAddress = config.usdtWallet;
+        this.preferredNetwork = config.usdtNetwork;
         this.pricing = new DynamicPricing();
     }
 
@@ -13,8 +13,7 @@ class USDTPaymentSystem {
         return {
             totalAmount: price,
             currency: "USDT",
-            preferredNetwork: "TRC20", // Lower fees
-            alternativeNetworks: ["ERC20", "BEP20"],
+            preferredNetwork: this.preferredNetwork,
             walletAddress: this.walletAddress,
             paymentTerms: this.generatePaymentTerms(price),
             escrowOption: price > 1000,

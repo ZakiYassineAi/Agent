@@ -1,3 +1,8 @@
+const fs = require('fs');
+const path = require('path');
+
+const configPath = path.resolve(__dirname, 'config.json');
+const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
 const SmartGithubAgent = require('./src/SmartGithubAgent.js');
 const RiskAssessmentSystem = require('./src/RiskAssessmentSystem.js');
 const AdaptiveLearningSystem = require('./src/AdaptiveLearningSystem.js');
@@ -8,9 +13,10 @@ const AntiDetectionSystem = require('./src/AntiDetectionSystem.js');
  * It manages the overall workflow from finding opportunities to learning from them.
  */
 class CompleteAutomationSystem {
-    constructor() {
-        // Instantiate all the major system components
-        this.agent = new SmartGithubAgent();
+    constructor(config) {
+        this.config = config;
+        // Instantiate all the major system components, passing config where needed
+        this.agent = new SmartGithubAgent(config);
         this.riskAssessor = new RiskAssessmentSystem();
         this.learningSystem = new AdaptiveLearningSystem();
         this.antiDetection = new AntiDetectionSystem();
@@ -19,20 +25,25 @@ class CompleteAutomationSystem {
 
     async start() {
         console.log("--- Starting Complete Automation System Run ---");
+        if (this.config.dryRun) {
+            console.log("MODE: Running in Dry Run Mode. No comments will be posted.");
+        } else {
+            console.log("MODE: Running in Live Mode. Comments will be posted to GitHub.");
+        }
 
         // Use the anti-detection system's safety wrapper for the entire process
         await this.antiDetection.executeSafely(async () => {
             console.log("Searching for opportunities...");
             const opportunities = await this.agent.strategies.opportunityHunter.findRealOpportunities();
 
-            if (!opportunities || opportunities.length === 0) {
+            if (!opportunities || !opportunities.items || opportunities.items.length === 0) {
                 console.log("No new opportunities found.");
                 return;
             }
-            console.log(`Found ${opportunities.length} potential opportunities.`);
+            console.log(`Found ${opportunities.total_count} potential opportunities. Processing top results...`);
 
             // Process the first few opportunities found
-            for (const opportunity of opportunities.slice(0, 3)) {
+            for (const opportunity of opportunities.items.slice(0, 3)) {
                 const assessment = await this.riskAssessor.assessOpportunity(opportunity);
                 console.log(`\nAssessing opportunity: "${opportunity.title}" -> Risk: ${assessment.riskLevel}`);
 
@@ -40,10 +51,15 @@ class CompleteAutomationSystem {
                     console.log("Recommendation: PROCEED. Crafting response...");
                     const response = await this.agent.strategies.naturalResponder.craftNaturalResponse(opportunity);
 
-                    // In a real system, this response would be posted to the GitHub issue.
-                    console.log(`--- Prepared Response for ${opportunity.html_url} ---`);
-                    console.log(response);
-                    console.log("----------------------------------------------------");
+                    if (this.config.dryRun) {
+                        console.log(`--- [Dry Run] Prepared Response for ${opportunity.html_url} ---`);
+                        console.log(response);
+                        console.log("----------------------------------------------------");
+                    } else {
+                        // This is where the real posting logic would go.
+                        console.log(`--- [Live Mode] Posting response to ${opportunity.html_url} ---`);
+                        // await this.postCommentToGithub(opportunity.comments_url, response);
+                    }
 
                     // Simulate tracking the outcome for the learning system
                     this.learningSystem.trackPerformance({
@@ -69,7 +85,7 @@ class CompleteAutomationSystem {
  * Main execution function to run the system.
  */
 async function main() {
-    const system = new CompleteAutomationSystem();
+    const system = new CompleteAutomationSystem(config);
     try {
         await system.start();
     } catch (error) {
