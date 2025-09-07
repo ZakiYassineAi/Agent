@@ -22,28 +22,47 @@ class OpportunityHunter {
             "Urgent Django fix"
         ];
 
-        // Combine all keywords into a single, powerful query using OR.
-        // Queries with spaces are wrapped in quotes for exact phrase matching.
-        const combinedQuery = searchQueries
-            .map(q => q.includes(' ') ? `"${q}"` : q)
-            .join(' OR ');
-
-        console.log(`Executing combined search query: ${combinedQuery}`);
-
-        const results = await this.searchGithubIssues(combinedQuery);
-
-        if (!results || !results.items) {
-            return [];
+        const chunkSize = 5; // Group queries into chunks of 5 to avoid API query length limits
+        const queryChunks = [];
+        for (let i = 0; i < searchQueries.length; i += chunkSize) {
+            const chunk = searchQueries.slice(i, i + chunkSize);
+            const combinedQuery = chunk
+                .map(q => q.includes(' ') ? `"${q}"` : q)
+                .join(' OR ');
+            queryChunks.push(combinedQuery);
         }
 
+        console.log(`Executing ${queryChunks.length} search query chunks...`);
+
+        // Run all chunked searches concurrently for efficiency
+        const allResults = await Promise.all(
+            queryChunks.map(query => this.searchGithubIssues(query))
+        );
+
+        // Flatten the array of arrays of items into a single array of opportunities
+        const opportunities = allResults
+            .filter(result => result && result.items)
+            .flatMap(result => result.items);
+
         // The filter logic can now be applied to the combined results.
-        return this.filterGenuineOpportunities(results.items);
+        return this.filterGenuineOpportunities(opportunities);
     }
 
     async filterGenuineOpportunities(opportunities) {
-        // This is a placeholder filter. A real implementation would require
-        // much more sophisticated analysis of the issue, repository, and author.
-        return opportunities.filter(opp => {
+        const uniqueOpportunities = [];
+        const seenIds = new Set();
+
+        for (const opp of opportunities) {
+            if (!seenIds.has(opp.id)) {
+                seenIds.add(opp.id);
+                uniqueOpportunities.push(opp);
+            }
+        }
+
+        console.log(`Found ${opportunities.length} total results, filtered down to ${uniqueOpportunities.length} unique opportunities.`);
+
+        // Now, apply the time-based filter to the unique opportunities
+        return uniqueOpportunities.filter(opp => {
             const issueAgeInHours = (new Date() - new Date(opp.created_at)) / (1000 * 60 * 60);
             return issueAgeInHours < 48;
         });
