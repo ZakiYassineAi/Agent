@@ -7,24 +7,37 @@ class OpportunityHunter {
 
     async findRealOpportunities() {
         const searchQueries = [
-            // البحث عن طلبات المساعدة الصريحة
+            // General Freelance & Contract Work
             "help wanted freelancer",
-            "need developer urgent",
+            "freelance opportunity",
             "looking for contractor",
+            "contract work available",
+            "freelancer needed",
+            "contractor needed",
+
+            // Urgency & Payment Indicators
+            "need developer urgent",
             "willing to pay developer",
             "hiring developer",
             "budget available",
-            "need help ASAP",
-            "freelance opportunity",
-            "contract work available",
+            "paid gig",
+            "paid task",
+            "compensation",
+            "bounty",
+            "looking to hire",
 
-            // Issues مع كلمات مفتاحية تدل على الاستعداد للدفع
+            // Problem & Project Based
             "urgent fix needed",
             "production issue",
-            "client waiting",
-            "deadline tomorrow",
             "business critical",
-            "enterprise project"
+            "client waiting",
+            "deadline approaching",
+
+            // Tech-Specific Examples
+            "React developer needed",
+            "Python freelance help",
+            "Node.js expert wanted",
+            "Urgent Django fix"
         ];
 
         const opportunities = [];
